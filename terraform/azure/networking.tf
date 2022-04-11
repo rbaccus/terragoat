@@ -140,6 +140,6 @@ resource azurerm_network_watcher_flow_log "flow_log" {
     git_modifiers        = "nimrodkor"
     git_org              = "rbaccus"
     git_repo             = "terragoat"
-    yor_trace            = "18805eb6-72e2-463e-a984-2e1891762efb"
+    yor_trace            = "33a7212e-7f1a-49fc-af73-8e525c5546ec"
   }
 }
