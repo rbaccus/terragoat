@@ -3,6 +3,16 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "docking_bay" {
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "docking_bay" {
+  bucket = aws_s3_bucket.docking_bay.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "AES256"
+    }
+  }
   bucket_prefix = "docking-bay-storage-"
 
   tags = {
