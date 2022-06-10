@@ -19,12 +19,12 @@ resource "azurerm_key_vault" "example" {
     environment = var.environment
     terragoat   = true
     }, {
-    git_commit           = "81738b80d571fa3034633690d13ffb460e1e7dea"
+    git_commit           = "79e957c28ed3c79e9777265cae36a60ff91d74bf"
     git_file             = "terraform/azure/key_vault.tf"
-    git_last_modified_at = "2020-06-19 21:14:50"
-    git_last_modified_by = "Adin.Ermie@outlook.com"
-    git_modifiers        = "Adin.Ermie/nimrodkor"
-    git_org              = "bridgecrewio"
+    git_last_modified_at = "2022-06-10 17:38:27"
+    git_last_modified_by = "rbaccus@outlook.com"
+    git_modifiers        = "Adin.Ermie/nimrodkor/rbaccus"
+    git_org              = "rbaccus"
     git_repo             = "terragoat"
     yor_trace            = "79afeacc-248a-4015-a4fa-76a6a57f06e2"
   })
