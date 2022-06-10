@@ -29,7 +29,11 @@ resource "azurerm_key_vault" "example" {
     yor_trace            = "79afeacc-248a-4015-a4fa-76a6a57f06e2"
   })
   purge_protection_enabled = true
+  network_acls {
+    default_action = "Deny"
+  }
 }
+
 
 
 resource "azurerm_key_vault_key" "generated" {
