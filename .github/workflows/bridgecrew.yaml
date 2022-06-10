@@ -1,4 +1,4 @@
-name: PCCS
+name: Bridgecrew
 on:
   pull_request:
   push:
