@@ -1,0 +1,625 @@
+
+
+       _               _              
+   ___| |__   ___  ___| | _______   __
+  / __| '_ \ / _ \/ __| |/ / _ \ \ / /
+ | (__| | | |  __/ (__|   < (_) \ V / 
+  \___|_| |_|\___|\___|_|\_\___/ \_/  
+                                      
+By bridgecrew.io | version: 2.0.884 
+Update available 2.0.884 -> 2.0.885
+Run pip3 install -U checkov to update 
+
+
+terraform scan results:
+
+Passed checks: 10, Failed checks: 19, Skipped checks: 0
+
+Check: CKV_AWS_88: "EC2 instance should not have public IP."
+	PASSED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/public_12
+Check: CKV_AWS_25: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389"
+	PASSED for resource: aws_security_group.web-node
+	File: /ec2.tf:77-115
+	Guide: https://docs.bridgecrew.io/docs/networking_2
+Check: CKV_AWS_70: "Ensure S3 bucket does not allow an action with any Principal"
+	PASSED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/bc_aws_s3_23
+Check: CKV_AWS_93: "Ensure S3 bucket policy does not lockout all but root user. (Prevent lockouts needing root account fixes)"
+	PASSED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/bc_aws_iam_53
+Check: CKV_AWS_20: "S3 Bucket has an ACL defined which allows public READ access."
+	PASSED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3_1-acl-read-permissions-everyone
+Check: CKV_AWS_57: "S3 Bucket has an ACL defined which allows public WRITE access."
+	PASSED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3_2-acl-write-permissions-everyone
+Check: CKV2_AWS_35: "AWS NAT Gateways should be utilized for the default route"
+	PASSED for resource: aws_route_table.web_rtb
+	File: /ec2.tf:193-208
+Check: CKV2_AWS_35: "AWS NAT Gateways should be utilized for the default route"
+	PASSED for resource: aws_route.public_internet_gateway
+	File: /ec2.tf:220-228
+Check: CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+	PASSED for resource: aws_security_group.web-node
+	File: /ec2.tf:77-115
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-security-groups-are-attached-to-ec2-instances-or-elastic-network-interfaces-enis
+Check: CKV2_AWS_11: "Ensure VPC flow logging is enabled in all VPCs"
+	PASSED for resource: aws_vpc.web_vpc
+	File: /ec2.tf:117-133
+	Guide: https://docs.bridgecrew.io/docs/logging_9-enable-vpc-flow-logging
+Check: CKV_AWS_46: "Ensure no hard-coded secrets exist in EC2 user data"
+	FAILED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/bc_aws_secrets_1
+
+		1  | resource "aws_instance" "web_host" {
+		2  |   # ec2 have plain text secrets in user data
+		3  |   ami           = "${var.ami}"
+		4  |   instance_type = "t2.nano"
+		5  | 
+		6  |   vpc_security_group_ids = [
+		7  |   "${aws_security_group.web-node.id}"]
+		8  |   subnet_id = "${aws_subnet.web_subnet.id}"
+		9  |   user_data = <<EOF
+		10 | #! /bin/bash
+		11 | sudo apt-get update
+		12 | sudo apt-get install -y apache2
+		13 | sudo systemctl start apache2
+		14 | sudo systemctl enable apache2
+		15 | export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
+		16 | export AWS_SECRET_ACCESS_KEY=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
+		17 | export AWS_DEFAULT_REGION=us-west-2
+		18 | echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+		19 | EOF
+		20 |   tags = merge({
+		21 |     Name = "${local.resource_prefix.value}-ec2"
+		22 |     }, {
+		23 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		24 |     git_file             = "terraform/aws/ec2.tf"
+		25 |     git_last_modified_at = "2020-06-16 14:46:24"
+		26 |     git_last_modified_by = "nimrodkor@gmail.com"
+		27 |     git_modifiers        = "nimrodkor"
+		28 |     git_org              = "bridgecrewio"
+		29 |     git_repo             = "terragoat"
+		30 |     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
+		31 |   })
+		32 | }
+
+Check: CKV_AWS_126: "Ensure that detailed monitoring is enabled for EC2 instances"
+	FAILED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-detailed-monitoring-is-enabled-for-ec2-instances
+
+		1  | resource "aws_instance" "web_host" {
+		2  |   # ec2 have plain text secrets in user data
+		3  |   ami           = "${var.ami}"
+		4  |   instance_type = "t2.nano"
+		5  | 
+		6  |   vpc_security_group_ids = [
+		7  |   "${aws_security_group.web-node.id}"]
+		8  |   subnet_id = "${aws_subnet.web_subnet.id}"
+		9  |   user_data = <<EOF
+		10 | #! /bin/bash
+		11 | sudo apt-get update
+		12 | sudo apt-get install -y apache2
+		13 | sudo systemctl start apache2
+		14 | sudo systemctl enable apache2
+		15 | export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
+		16 | export AWS_SECRET_ACCESS_KEY=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
+		17 | export AWS_DEFAULT_REGION=us-west-2
+		18 | echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+		19 | EOF
+		20 |   tags = merge({
+		21 |     Name = "${local.resource_prefix.value}-ec2"
+		22 |     }, {
+		23 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		24 |     git_file             = "terraform/aws/ec2.tf"
+		25 |     git_last_modified_at = "2020-06-16 14:46:24"
+		26 |     git_last_modified_by = "nimrodkor@gmail.com"
+		27 |     git_modifiers        = "nimrodkor"
+		28 |     git_org              = "bridgecrewio"
+		29 |     git_repo             = "terragoat"
+		30 |     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
+		31 |   })
+		32 | }
+
+Check: CKV_AWS_135: "Ensure that EC2 is EBS optimized"
+	FAILED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-ec2-is-ebs-optimized
+
+		1  | resource "aws_instance" "web_host" {
+		2  |   # ec2 have plain text secrets in user data
+		3  |   ami           = "${var.ami}"
+		4  |   instance_type = "t2.nano"
+		5  | 
+		6  |   vpc_security_group_ids = [
+		7  |   "${aws_security_group.web-node.id}"]
+		8  |   subnet_id = "${aws_subnet.web_subnet.id}"
+		9  |   user_data = <<EOF
+		10 | #! /bin/bash
+		11 | sudo apt-get update
+		12 | sudo apt-get install -y apache2
+		13 | sudo systemctl start apache2
+		14 | sudo systemctl enable apache2
+		15 | export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
+		16 | export AWS_SECRET_ACCESS_KEY=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
+		17 | export AWS_DEFAULT_REGION=us-west-2
+		18 | echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+		19 | EOF
+		20 |   tags = merge({
+		21 |     Name = "${local.resource_prefix.value}-ec2"
+		22 |     }, {
+		23 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		24 |     git_file             = "terraform/aws/ec2.tf"
+		25 |     git_last_modified_at = "2020-06-16 14:46:24"
+		26 |     git_last_modified_by = "nimrodkor@gmail.com"
+		27 |     git_modifiers        = "nimrodkor"
+		28 |     git_org              = "bridgecrewio"
+		29 |     git_repo             = "terragoat"
+		30 |     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
+		31 |   })
+		32 | }
+
+Check: CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
+	FAILED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/bc_aws_general_31
+
+		1  | resource "aws_instance" "web_host" {
+		2  |   # ec2 have plain text secrets in user data
+		3  |   ami           = "${var.ami}"
+		4  |   instance_type = "t2.nano"
+		5  | 
+		6  |   vpc_security_group_ids = [
+		7  |   "${aws_security_group.web-node.id}"]
+		8  |   subnet_id = "${aws_subnet.web_subnet.id}"
+		9  |   user_data = <<EOF
+		10 | #! /bin/bash
+		11 | sudo apt-get update
+		12 | sudo apt-get install -y apache2
+		13 | sudo systemctl start apache2
+		14 | sudo systemctl enable apache2
+		15 | export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
+		16 | export AWS_SECRET_ACCESS_KEY=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
+		17 | export AWS_DEFAULT_REGION=us-west-2
+		18 | echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+		19 | EOF
+		20 |   tags = merge({
+		21 |     Name = "${local.resource_prefix.value}-ec2"
+		22 |     }, {
+		23 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		24 |     git_file             = "terraform/aws/ec2.tf"
+		25 |     git_last_modified_at = "2020-06-16 14:46:24"
+		26 |     git_last_modified_by = "nimrodkor@gmail.com"
+		27 |     git_modifiers        = "nimrodkor"
+		28 |     git_org              = "bridgecrewio"
+		29 |     git_repo             = "terragoat"
+		30 |     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
+		31 |   })
+		32 | }
+
+Check: CKV_AWS_8: "Ensure all data stored in the Launch configuration or instance Elastic Blocks Store is securely encrypted"
+	FAILED for resource: aws_instance.web_host
+	File: /ec2.tf:1-32
+	Guide: https://docs.bridgecrew.io/docs/general_13
+
+		1  | resource "aws_instance" "web_host" {
+		2  |   # ec2 have plain text secrets in user data
+		3  |   ami           = "${var.ami}"
+		4  |   instance_type = "t2.nano"
+		5  | 
+		6  |   vpc_security_group_ids = [
+		7  |   "${aws_security_group.web-node.id}"]
+		8  |   subnet_id = "${aws_subnet.web_subnet.id}"
+		9  |   user_data = <<EOF
+		10 | #! /bin/bash
+		11 | sudo apt-get update
+		12 | sudo apt-get install -y apache2
+		13 | sudo systemctl start apache2
+		14 | sudo systemctl enable apache2
+		15 | export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMAAA
+		16 | export AWS_SECRET_ACCESS_KEY=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
+		17 | export AWS_DEFAULT_REGION=us-west-2
+		18 | echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+		19 | EOF
+		20 |   tags = merge({
+		21 |     Name = "${local.resource_prefix.value}-ec2"
+		22 |     }, {
+		23 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		24 |     git_file             = "terraform/aws/ec2.tf"
+		25 |     git_last_modified_at = "2020-06-16 14:46:24"
+		26 |     git_last_modified_by = "nimrodkor@gmail.com"
+		27 |     git_modifiers        = "nimrodkor"
+		28 |     git_org              = "bridgecrewio"
+		29 |     git_repo             = "terragoat"
+		30 |     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
+		31 |   })
+		32 | }
+
+Check: CKV_AWS_3: "Ensure all data stored in the EBS is securely encrypted"
+	FAILED for resource: aws_ebs_volume.web_host_storage
+	File: /ec2.tf:34-51
+	Guide: https://docs.bridgecrew.io/docs/general_3-encrypt-eps-volume
+
+		34 | resource "aws_ebs_volume" "web_host_storage" {
+		35 |   # unencrypted volume
+		36 |   availability_zone = "${var.region}a"
+		37 |   #encrypted         = false  # Setting this causes the volume to be recreated on apply 
+		38 |   size = 1
+		39 |   tags = merge({
+		40 |     Name = "${local.resource_prefix.value}-ebs"
+		41 |     }, {
+		42 |     git_commit           = "d3439f0f2af62f6fa3521e14d6c27819ef8f12e1"
+		43 |     git_file             = "terraform/aws/ec2.tf"
+		44 |     git_last_modified_at = "2021-05-02 11:17:26"
+		45 |     git_last_modified_by = "nimrodkor@users.noreply.github.com"
+		46 |     git_modifiers        = "nimrodkor"
+		47 |     git_org              = "rbaccus"
+		48 |     git_repo             = "terragoat"
+		49 |     yor_trace            = "c5509daf-10f0-46af-9e03-41989212521d"
+		50 |   })
+		51 | }
+
+Check: CKV_AWS_189: "Ensure EBS Volume is encrypted by KMS using a customer managed Key (CMK)"
+	FAILED for resource: aws_ebs_volume.web_host_storage
+	File: /ec2.tf:34-51
+	Guide: https://docs.bridgecrew.io/docs/bc_aws_general_109
+
+		34 | resource "aws_ebs_volume" "web_host_storage" {
+		35 |   # unencrypted volume
+		36 |   availability_zone = "${var.region}a"
+		37 |   #encrypted         = false  # Setting this causes the volume to be recreated on apply 
+		38 |   size = 1
+		39 |   tags = merge({
+		40 |     Name = "${local.resource_prefix.value}-ebs"
+		41 |     }, {
+		42 |     git_commit           = "d3439f0f2af62f6fa3521e14d6c27819ef8f12e1"
+		43 |     git_file             = "terraform/aws/ec2.tf"
+		44 |     git_last_modified_at = "2021-05-02 11:17:26"
+		45 |     git_last_modified_by = "nimrodkor@users.noreply.github.com"
+		46 |     git_modifiers        = "nimrodkor"
+		47 |     git_org              = "rbaccus"
+		48 |     git_repo             = "terragoat"
+		49 |     yor_trace            = "c5509daf-10f0-46af-9e03-41989212521d"
+		50 |   })
+		51 | }
+
+Check: CKV_AWS_23: "Ensure every security groups rule has a description"
+	FAILED for resource: aws_security_group.web-node
+	File: /ec2.tf:77-115
+	Guide: https://docs.bridgecrew.io/docs/networking_31
+
+		77  | resource "aws_security_group" "web-node" {
+		78  |   # security group is open to the world in SSH port
+		79  |   name        = "${local.resource_prefix.value}-sg"
+		80  |   description = "${local.resource_prefix.value} Security Group"
+		81  |   vpc_id      = aws_vpc.web_vpc.id
+		82  | 
+		83  |   ingress {
+		84  |     from_port = 80
+		85  |     to_port   = 80
+		86  |     protocol  = "tcp"
+		87  |     cidr_blocks = [
+		88  |     "0.0.0.0/0"]
+		89  |   }
+		90  |   ingress {
+		91  |     from_port = 22
+		92  |     to_port   = 22
+		93  |     protocol  = "tcp"
+		94  |     cidr_blocks = [
+		95  |     "0.0.0.0/0"]
+		96  |   }
+		97  |   egress {
+		98  |     from_port = 0
+		99  |     to_port   = 0
+		100 |     protocol  = "-1"
+		101 |     cidr_blocks = [
+		102 |     "0.0.0.0/0"]
+		103 |   }
+		104 |   depends_on = [aws_vpc.web_vpc]
+		105 |   tags = {
+		106 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		107 |     git_file             = "terraform/aws/ec2.tf"
+		108 |     git_last_modified_at = "2020-06-16 14:46:24"
+		109 |     git_last_modified_by = "nimrodkor@gmail.com"
+		110 |     git_modifiers        = "nimrodkor"
+		111 |     git_org              = "bridgecrewio"
+		112 |     git_repo             = "terragoat"
+		113 |     yor_trace            = "b7af1b40-64eb-4519-a1a0-ab198db4b193"
+		114 |   }
+		115 | }
+
+Check: CKV_AWS_24: "Ensure no security groups allow ingress from 0.0.0.0:0 to port 22"
+	FAILED for resource: aws_security_group.web-node
+	File: /ec2.tf:77-115
+	Guide: https://docs.bridgecrew.io/docs/networking_1-port-security
+
+		77  | resource "aws_security_group" "web-node" {
+		78  |   # security group is open to the world in SSH port
+		79  |   name        = "${local.resource_prefix.value}-sg"
+		80  |   description = "${local.resource_prefix.value} Security Group"
+		81  |   vpc_id      = aws_vpc.web_vpc.id
+		82  | 
+		83  |   ingress {
+		84  |     from_port = 80
+		85  |     to_port   = 80
+		86  |     protocol  = "tcp"
+		87  |     cidr_blocks = [
+		88  |     "0.0.0.0/0"]
+		89  |   }
+		90  |   ingress {
+		91  |     from_port = 22
+		92  |     to_port   = 22
+		93  |     protocol  = "tcp"
+		94  |     cidr_blocks = [
+		95  |     "0.0.0.0/0"]
+		96  |   }
+		97  |   egress {
+		98  |     from_port = 0
+		99  |     to_port   = 0
+		100 |     protocol  = "-1"
+		101 |     cidr_blocks = [
+		102 |     "0.0.0.0/0"]
+		103 |   }
+		104 |   depends_on = [aws_vpc.web_vpc]
+		105 |   tags = {
+		106 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		107 |     git_file             = "terraform/aws/ec2.tf"
+		108 |     git_last_modified_at = "2020-06-16 14:46:24"
+		109 |     git_last_modified_by = "nimrodkor@gmail.com"
+		110 |     git_modifiers        = "nimrodkor"
+		111 |     git_org              = "bridgecrewio"
+		112 |     git_repo             = "terragoat"
+		113 |     yor_trace            = "b7af1b40-64eb-4519-a1a0-ab198db4b193"
+		114 |   }
+		115 | }
+
+Check: CKV_AWS_130: "Ensure VPC subnets do not assign public IP by default"
+	FAILED for resource: aws_subnet.web_subnet
+	File: /ec2.tf:135-153
+	Guide: https://docs.bridgecrew.io/docs/ensure-vpc-subnets-do-not-assign-public-ip-by-default
+
+		135 | resource "aws_subnet" "web_subnet" {
+		136 |   vpc_id                  = aws_vpc.web_vpc.id
+		137 |   cidr_block              = "172.16.10.0/24"
+		138 |   availability_zone       = "${var.region}a"
+		139 |   map_public_ip_on_launch = true
+		140 | 
+		141 |   tags = merge({
+		142 |     Name = "${local.resource_prefix.value}-subnet"
+		143 |     }, {
+		144 |     git_commit           = "6e62522d2ab8f63740e53752b84a6e99cd65696a"
+		145 |     git_file             = "terraform/aws/ec2.tf"
+		146 |     git_last_modified_at = "2021-05-02 11:16:31"
+		147 |     git_last_modified_by = "nimrodkor@gmail.com"
+		148 |     git_modifiers        = "nimrodkor"
+		149 |     git_org              = "bridgecrewio"
+		150 |     git_repo             = "terragoat"
+		151 |     yor_trace            = "0345f650-d280-4ca8-86c9-c71c38c0eda8"
+		152 |   })
+		153 | }
+
+Check: CKV_AWS_130: "Ensure VPC subnets do not assign public IP by default"
+	FAILED for resource: aws_subnet.web_subnet2
+	File: /ec2.tf:155-173
+	Guide: https://docs.bridgecrew.io/docs/ensure-vpc-subnets-do-not-assign-public-ip-by-default
+
+		155 | resource "aws_subnet" "web_subnet2" {
+		156 |   vpc_id                  = aws_vpc.web_vpc.id
+		157 |   cidr_block              = "172.16.11.0/24"
+		158 |   availability_zone       = "${var.region}b"
+		159 |   map_public_ip_on_launch = true
+		160 | 
+		161 |   tags = merge({
+		162 |     Name = "${local.resource_prefix.value}-subnet2"
+		163 |     }, {
+		164 |     git_commit           = "6e62522d2ab8f63740e53752b84a6e99cd65696a"
+		165 |     git_file             = "terraform/aws/ec2.tf"
+		166 |     git_last_modified_at = "2021-05-02 11:16:31"
+		167 |     git_last_modified_by = "nimrodkor@gmail.com"
+		168 |     git_modifiers        = "nimrodkor"
+		169 |     git_org              = "bridgecrewio"
+		170 |     git_repo             = "terragoat"
+		171 |     yor_trace            = "224af03a-00e0-4981-be30-14965833c2db"
+		172 |   })
+		173 | }
+
+Check: CKV_AWS_18: "Ensure the S3 bucket has access logging enabled"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3_13-enable-logging
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-s3-bucket-has-cross-region-replication-enabled
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV_AWS_19: "Ensure all data stored in the S3 bucket is securely encrypted at rest"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3_14-data-encrypted-at-rest
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-s3-buckets-are-encrypted-with-kms-by-default
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3_16-enable-versioning
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV2_AWS_2: "Ensure that only encrypted EBS volumes are attached to EC2 instances"
+	FAILED for resource: aws_ebs_volume.web_host_storage
+	File: /ec2.tf:34-51
+	Guide: https://docs.bridgecrew.io/docs/ensure-that-only-encrypted-ebs-volumes-are-attached-to-ec2-instances
+
+		34 | resource "aws_ebs_volume" "web_host_storage" {
+		35 |   # unencrypted volume
+		36 |   availability_zone = "${var.region}a"
+		37 |   #encrypted         = false  # Setting this causes the volume to be recreated on apply 
+		38 |   size = 1
+		39 |   tags = merge({
+		40 |     Name = "${local.resource_prefix.value}-ebs"
+		41 |     }, {
+		42 |     git_commit           = "d3439f0f2af62f6fa3521e14d6c27819ef8f12e1"
+		43 |     git_file             = "terraform/aws/ec2.tf"
+		44 |     git_last_modified_at = "2021-05-02 11:17:26"
+		45 |     git_last_modified_by = "nimrodkor@users.noreply.github.com"
+		46 |     git_modifiers        = "nimrodkor"
+		47 |     git_org              = "rbaccus"
+		48 |     git_repo             = "terragoat"
+		49 |     yor_trace            = "c5509daf-10f0-46af-9e03-41989212521d"
+		50 |   })
+		51 | }
+
+Check: CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block"
+	FAILED for resource: aws_s3_bucket.flowbucket
+	File: /ec2.tf:271-288
+	Guide: https://docs.bridgecrew.io/docs/s3-bucket-should-have-public-access-blocks-defaults-to-false-if-the-public-access-block-is-not-attached
+
+		271 | resource "aws_s3_bucket" "flowbucket" {
+		272 |   bucket        = "${local.resource_prefix.value}-flowlogs"
+		273 |   force_destroy = true
+		274 | 
+		275 |   tags = merge({
+		276 |     Name        = "${local.resource_prefix.value}-flowlogs"
+		277 |     Environment = local.resource_prefix.value
+		278 |     }, {
+		279 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		280 |     git_file             = "terraform/aws/ec2.tf"
+		281 |     git_last_modified_at = "2020-06-16 14:46:24"
+		282 |     git_last_modified_by = "nimrodkor@gmail.com"
+		283 |     git_modifiers        = "nimrodkor"
+		284 |     git_org              = "bridgecrewio"
+		285 |     git_repo             = "terragoat"
+		286 |     yor_trace            = "f058838a-b1e0-4383-b965-7e06e987ffb1"
+		287 |   })
+		288 | }
+
+Check: CKV2_AWS_12: "Ensure the default security group of every VPC restricts all traffic"
+	FAILED for resource: aws_vpc.web_vpc
+	File: /ec2.tf:117-133
+	Guide: https://docs.bridgecrew.io/docs/networking_4
+
+		117 | resource "aws_vpc" "web_vpc" {
+		118 |   cidr_block           = "172.16.0.0/16"
+		119 |   enable_dns_hostnames = true
+		120 |   enable_dns_support   = true
+		121 |   tags = merge({
+		122 |     Name = "${local.resource_prefix.value}-vpc"
+		123 |     }, {
+		124 |     git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+		125 |     git_file             = "terraform/aws/ec2.tf"
+		126 |     git_last_modified_at = "2020-06-16 14:46:24"
+		127 |     git_last_modified_by = "nimrodkor@gmail.com"
+		128 |     git_modifiers        = "nimrodkor"
+		129 |     git_org              = "bridgecrewio"
+		130 |     git_repo             = "terragoat"
+		131 |     yor_trace            = "9bf2359b-952e-4570-9595-52eba4c20473"
+		132 |   })
+		133 | }
+
+
