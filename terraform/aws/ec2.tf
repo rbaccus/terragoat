@@ -20,18 +20,20 @@ EOF
   tags = merge({
     Name = "${local.resource_prefix.value}-ec2"
     }, {
-    git_commit           = "d68d2897add9bc2203a5ed0632a5cdd8ff8cefb0"
+    git_commit           = "4bf3de88aaeb51927f7b2597160bdc72f4983108"
     git_file             = "terraform/aws/ec2.tf"
-    git_last_modified_at = "2020-06-16 14:46:24"
-    git_last_modified_by = "nimrodkor@gmail.com"
-    git_modifiers        = "nimrodkor"
-    git_org              = "bridgecrewio"
+    git_last_modified_at = "2023-06-26 23:15:00"
+    git_last_modified_by = "rbaccus@outlook.com"
+    git_modifiers        = "nimrodkor/rbaccus"
+    git_org              = "rbaccus"
     git_repo             = "terragoat"
     yor_trace            = "347af3cd-4f70-4632-aca3-4d5e30ffc0b6"
     }, {
     yor_name = "web_host"
   })
+  ebs_optimized = true
 }
+
 
 resource "aws_ebs_volume" "web_host_storage" {
   # unencrypted volume
@@ -41,18 +43,20 @@ resource "aws_ebs_volume" "web_host_storage" {
   tags = merge({
     Name = "${local.resource_prefix.value}-ebs"
     }, {
-    git_commit           = "d3439f0f2af62f6fa3521e14d6c27819ef8f12e1"
+    git_commit           = "e6602eaf84967fb0d4286ccb3a579bcf09d0f9dc"
     git_file             = "terraform/aws/ec2.tf"
-    git_last_modified_at = "2021-05-02 11:17:26"
-    git_last_modified_by = "nimrodkor@users.noreply.github.com"
-    git_modifiers        = "nimrodkor"
+    git_last_modified_at = "2023-11-16 18:13:49"
+    git_last_modified_by = "rbaccus@outlook.com"
+    git_modifiers        = "nimrodkor/rbaccus"
     git_org              = "rbaccus"
     git_repo             = "terragoat"
     yor_trace            = "c5509daf-10f0-46af-9e03-41989212521d"
     }, {
     yor_name = "web_host_storage"
   })
+  encrypted = true
 }
+
 
 resource "aws_ebs_snapshot" "example_snapshot" {
   # ebs snapshot without encryption
