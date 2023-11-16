@@ -54,7 +54,9 @@ resource "aws_ebs_volume" "web_host_storage" {
     }, {
     yor_name = "web_host_storage"
   })
+  encrypted = true
 }
+
 
 resource "aws_ebs_snapshot" "example_snapshot" {
   # ebs snapshot without encryption
