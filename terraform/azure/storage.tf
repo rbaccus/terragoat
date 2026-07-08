@@ -18,6 +18,7 @@ resource "azurerm_managed_disk" "example" {
     git_repo             = "terragoat"
     yor_trace            = "d17da7b3-f1c5-4723-9f77-d1b9069459c7"
     yor_name             = "example"
+    user                 = "pchandaliya"
   }
 }
 
